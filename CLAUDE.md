@@ -23,26 +23,29 @@
   - 非機能要件
 
 - **docs/functional-design/** - 機能設計書
-  - AWS構成設計書 - aws_infra.md
   - レイヤードアーキテクチャ構成設計書 - layered_architecture.md
   - 処理フロー設計書 - workflow.md
   - API設計書 - api_design.md
+
+
+- **docs/infra-design**
   - テーブル設計書 - table.md
+  - AWS構成設計書 - aws_infra.md
+  - **cicd.md**
+    - CI/CDに関する設計書
+
+- **docs/structure**
+  - **architecture.md** - 技術仕様書
+    - テクノロジースタック
+    - 開発ツールと手法
+    - 非機能要件達成のためのコンポーネント設計書
+  - **repository-structure.md** - リポジトリ構造定義書
+    - フォルダ・ファイル構成
+    - ディレクトリの役割
+    - ファイル配置ルール
 
 
-- **architecture.md** - 技術仕様書
-  - テクノロジースタック
-  - 開発ツールと手法
-  - 非機能要件達成のためのコンポーネント設計書
 
-- **repository-structure.md** - リポジトリ構造定義書
-  - フォルダ・ファイル構成
-  - ディレクトリの役割
-  - ファイル配置ルール
-
-
-- **cicd.md**
-CI/CDに関する設計書
 
 #### 2. 作業単位のドキュメント（`.steering/[YYYYMMDD]-[開発タイトル]/`）
 特定の開発作業における「**今回何をするか**」を定義する一時的なステアリングファイル。
