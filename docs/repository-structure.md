@@ -4,6 +4,8 @@
 
 ```
 /
+├── .github/                 # GitHub関連設定
+│   └── workflows/           # GitHub Actionsワークフロー
 ├── cdk/                     # AWS CDKプロジェクト
 │   └── .devcontainer/       # CDK用devcontainer
 ├── app/                     # Pythonアプリケーション
@@ -14,7 +16,18 @@
 
 ## 2. ディレクトリの役割
 
-### 2.1 cdk/
+### 2.1 .github/
+
+GitHub Actions CI/CDワークフロー。
+
+```
+.github/
+└── workflows/
+    ├── ci.yml           # CI（lint、型チェック、テスト）
+    └── deploy.yml       # Productionデプロイ
+```
+
+### 2.2 cdk/
 
 AWS CDKによるインフラ定義。VS Codeで`cdk/`を開いてdevcontainerを起動。
 
@@ -33,7 +46,7 @@ cdk/
 └── tsconfig.json
 ```
 
-### 2.2 app/
+### 2.3 app/
 
 Pythonアプリケーション（Lambda関数）。VS Codeで`app/`を開いてdevcontainerを起動。
 
@@ -71,7 +84,7 @@ app/
 └── pyproject.toml
 ```
 
-### 2.3 docs/
+### 2.4 docs/
 
 永続的ドキュメント。
 
@@ -85,10 +98,11 @@ docs/
 │   ├── api_design.md
 │   └── table.md
 ├── architecture.md
+├── cicd.md
 └── repository-structure.md
 ```
 
-### 2.4 .steering/
+### 2.5 .steering/
 
 作業単位のドキュメント。
 
