@@ -1,0 +1,21 @@
+{
+  "name": "CDK Environment",
+  "dockerComposeFile": "../../docker-compose.yml",
+  "service": "cdk",
+  "workspaceFolder": "/workspace/cdk",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "amazonwebservices.aws-toolkit-vscode"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      }
+    }
+  },
+  "postCreateCommand": "npm install",
+  "remoteUser": "node"
+}

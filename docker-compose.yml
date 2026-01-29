@@ -1,0 +1,21 @@
+services:
+  cdk:
+    build:
+      context: ./cdk
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workspace:cached
+      - ~/.aws:/home/node/.aws:ro
+    working_dir: /workspace/cdk
+    environment:
+      - AWS_PROFILE=${AWS_PROFILE:-default}
+    command: sleep infinity
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workspace:cached
+    working_dir: /workspace/app
+    command: sleep infinity
