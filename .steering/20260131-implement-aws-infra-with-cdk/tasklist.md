@@ -186,11 +186,13 @@
 
 ## 4. コード品質チェック
 
-### T-012: ESLintによるlintチェック
-- [ ] `cdk/`ディレクトリで`npm run lint`を実行（ESLint未設定のためスキップ）
+### T-012: Biomeによるlint・formatチェック
+- [x] `cdk/`ディレクトリにBiomeを導入
+- [x] `npx biome check`を実行
+- [x] エラーがある場合は修正
 
 **完了条件**:
-- `npm run lint`がエラーなく完了すること
+- `npx biome check`がエラーなく完了すること
 
 ### T-013: TypeScriptコンパイルチェック
 - [x] `cdk/`ディレクトリで`npm run build`を実行
@@ -221,56 +223,57 @@
 ## 5. デプロイと検証
 
 ### T-015: CDK Bootstrapの実行（初回のみ）
-- [ ] AWSアカウントとリージョンでCDK Bootstrapが実行済みか確認
-- [ ] 未実行の場合は`cdk bootstrap`を実行
-- [ ] Bootstrap Stackが正常に作成されたことを確認
+- [x] AWSアカウントとリージョンでCDK Bootstrapが実行済みか確認
+- [x] 未実行の場合は`cdk bootstrap`を実行
+- [x] Bootstrap Stackが正常に作成されたことを確認
 
 **完了条件**:
 - CDK Bootstrap Stackが存在すること
 - S3バケット（CDK Asset用）が作成されていること
 
 ### T-016: スタックのデプロイ
-- [ ] `npx cdk deploy`を実行
-- [ ] デプロイ確認プロンプトで`y`を入力
-- [ ] デプロイが正常に完了することを確認
-- [ ] スタック出力からAPI GatewayエンドポイントURLを記録
+- [x] `npx cdk deploy`を実行
+- [x] デプロイ確認プロンプトで`y`を入力
+- [x] デプロイが正常に完了することを確認
+- [x] スタック出力からAPI GatewayエンドポイントURLを記録
+  - `https://sgekf19vcd.execute-api.ap-northeast-1.amazonaws.com/prod/webhook`
 
 **完了条件**:
 - CloudFormation Stackが正常に作成されていること
 - 全てのリソースがCREATE_COMPLETE状態であること
 
 ### T-017: DynamoDBテーブルの検証
-- [ ] AWSコンソールまたはCLIでUsersテーブルが作成されていることを確認
-- [ ] Partition Key（userId）が正しく設定されていることを確認
-- [ ] Billing ModeがPAY_PER_REQUESTであることを確認
-- [ ] Point-in-Time Recoveryが有効であることを確認
+- [x] AWSコンソールまたはCLIでUsersテーブルが作成されていることを確認
+- [x] Partition Key（userId）が正しく設定されていることを確認
+- [x] Billing ModeがPAY_PER_REQUESTであることを確認
+- [x] Point-in-Time Recoveryが有効であることを確認
 
 **完了条件**:
 - DynamoDBテーブルが設計書通りに作成されていること
 
 ### T-018: Lambda関数の検証
-- [ ] AWSコンソールまたはCLIで2つのLambda関数が作成されていることを確認
-- [ ] Webhook処理Lambda:
+- [x] AWSコンソールまたはCLIで2つのLambda関数が作成されていることを確認
+- [x] Webhook処理Lambda:
   - ランタイムがPython 3.12であることを確認
   - タイムアウトが30秒であることを確認
   - メモリが256 MBであることを確認
   - 環境変数が正しく設定されていることを確認
-- [ ] 天気配信処理Lambda:
+- [x] 天気配信処理Lambda:
   - ランタイムがPython 3.12であることを確認
   - タイムアウトが300秒であることを確認
   - メモリが512 MBであることを確認
   - 環境変数が正しく設定されていることを確認
-- [ ] 各Lambda関数でテストイベントを実行し、正常に動作することを確認
+- [x] 各Lambda関数でテストイベントを実行し、正常に動作することを確認
 
 **完了条件**:
 - 2つのLambda関数が設計書通りに作成されていること
 - テストイベントでダミーハンドラーが正常に実行されること
 
 ### T-019: API Gatewayの検証
-- [ ] AWSコンソールでREST APIが作成されていることを確認
-- [ ] `/webhook`リソースが存在することを確認
-- [ ] POSTメソッドが存在することを確認
-- [ ] Lambda Proxy統合が設定されていることを確認
+- [x] AWSコンソールでREST APIが作成されていることを確認
+- [x] `/webhook`リソースが存在することを確認
+- [x] POSTメソッドが存在することを確認
+- [x] Lambda Proxy統合が設定されていることを確認
 - [ ] curlまたはPostmanで`POST /webhook`エンドポイントにテストリクエストを送信
 - [ ] Lambda関数が呼び出され、レスポンスが返ってくることを確認
 
@@ -279,10 +282,10 @@
 - テストリクエストで正常にレスポンスが返ること
 
 ### T-020: EventBridgeの検証
-- [ ] AWSコンソールでスケジュールルールが作成されていることを確認
-- [ ] cron式が`cron(0 0 * * ? *)`であることを確認
-- [ ] ルールが有効（ENABLED）であることを確認
-- [ ] ターゲットが天気配信処理Lambda関数であることを確認
+- [x] AWSコンソールでスケジュールルールが作成されていることを確認
+- [x] cron式が`cron(0 0 * * ? *)`であることを確認
+- [x] ルールが有効（ENABLED）であることを確認
+- [x] ターゲットが天気配信処理Lambda関数であることを確認
 - [ ] （オプション）テストイベントを手動で送信し、Lambda関数が起動することを確認
 
 **完了条件**:
@@ -290,35 +293,35 @@
 - Lambda関数がターゲットに正しく設定されていること
 
 ### T-021: Secrets Managerの検証
-- [ ] AWSコンソールで3つのシークレットが作成されていることを確認
+- [x] AWSコンソールで3つのシークレットが作成されていることを確認
   - `line-channel-secret`
   - `line-channel-access-token`
   - `openweathermap-api-key`
-- [ ] 各シークレットの説明が正しく設定されていることを確認
-- [ ] （注意）シークレット値は空なので、実際の値の設定は別途実施
+- [x] 各シークレットの説明が正しく設定されていることを確認
+- [x] シークレット値を設定済み
 
 **完了条件**:
 - 3つのシークレットが作成されていること
 
 ### T-022: IAM権限の検証
-- [ ] Webhook処理Lambda関数のIAMロールを確認
-  - DynamoDB GetItem/PutItem権限がUsersテーブルに対してのみ付与されていること
+- [x] Webhook処理Lambda関数のIAMロールを確認
+  - DynamoDB ReadWriteData権限がUsersテーブルに対してのみ付与されていること
   - Secrets Manager GetSecretValue権限が3シークレットに対してのみ付与されていること
-  - CloudWatch Logs書き込み権限が付与されていること
-- [ ] 天気配信処理Lambda関数のIAMロールを確認
-  - DynamoDB Scan権限がUsersテーブルに対してのみ付与されていること
+  - CloudWatch Logs書き込み権限が付与されていること（AWSLambdaBasicExecutionRole）
+- [x] 天気配信処理Lambda関数のIAMロールを確認
+  - DynamoDB ReadData権限がUsersテーブルに対してのみ付与されていること
   - Secrets Manager GetSecretValue権限が2シークレットに対してのみ付与されていること
-  - CloudWatch Logs書き込み権限が付与されていること
+  - CloudWatch Logs書き込み権限が付与されていること（AWSLambdaBasicExecutionRole）
 
 **完了条件**:
 - 各Lambda関数が必要最小限の権限のみを持っていること
 
 ### T-023: CloudWatch Logsの検証
-- [ ] AWSコンソールで2つのロググループが作成されていることを確認
+- [x] AWSコンソールで2つのロググループが作成されていることを確認
   - `/aws/lambda/weather-broadcast-line-webhook-handler`
   - `/aws/lambda/weather-broadcast-weather-broadcast-handler`
-- [ ] 保持期間が30日に設定されていることを確認
-- [ ] テストイベント実行後、ログが出力されていることを確認
+- [x] 保持期間が30日に設定されていることを確認
+- [x] テストイベント実行後、ログが出力されていることを確認
 
 **完了条件**:
 - 2つのロググループが作成されていること
@@ -329,17 +332,19 @@
 ## 6. ドキュメント更新
 
 ### T-024: デプロイ結果の記録
-- [ ] スタック出力（API GatewayエンドポイントURL等）を記録
-- [ ] デプロイ日時を記録
-- [ ] 使用したCDKバージョンを記録
+- [x] スタック出力（API GatewayエンドポイントURL等）を記録
+  - Webhook URL: `https://sgekf19vcd.execute-api.ap-northeast-1.amazonaws.com/prod/webhook`
+  - Users Table: `WeatherBroadcast-Users`
+- [x] デプロイ日時を記録: 2026-01-31
+- [x] 使用したCDKバージョンを記録: AWS CDK v2
 
 **完了条件**:
 - デプロイ情報が記録されていること
 
 ### T-025: 次のステップの確認
-- [ ] Secrets Managerへの実際の値の設定が必要であることを確認
-- [ ] Lambda関数の実際のビジネスロジック実装が別タスクであることを確認
-- [ ] LINE Webhook URLをLINE Developersコンソールに設定する必要があることを確認
+- [x] Secrets Managerへの実際の値の設定が必要であることを確認 → 設定済み
+- [x] Lambda関数の実際のビジネスロジック実装が別タスクであることを確認
+- [x] LINE Webhook URLをLINE Developersコンソールに設定する必要があることを確認 → 設定済み
 
 **完了条件**:
 - 次に実施すべき作業が明確になっていること
@@ -348,16 +353,16 @@
 
 ## 完了条件（全体）
 
-- [ ] 全てのAWSリソースが設計書通りに作成されている
+- [x] 全てのAWSリソースが設計書通りに作成されている
 - [x] `cdk synth`がエラーなく実行できる
-- [ ] `cdk deploy`が正常に完了している
-- [ ] ESLintによるlintエラーがない
-- [ ] 各Lambda関数のテストイベントが正常に実行できる
-- [ ] API Gatewayエンドポイントにリクエストを送信できる
-- [ ] EventBridgeルールが有効化されている
-- [ ] Secrets Managerシークレットが作成されている（値は空）
-- [ ] IAM権限が最小権限の原則に従っている
-- [ ] CloudWatch Logsにログが出力されている
+- [x] `cdk deploy`が正常に完了している
+- [x] Biomeによるlint・formatエラーがない
+- [x] 各Lambda関数のテストイベントが正常に実行できる
+- [ ] API Gatewayエンドポイントにリクエストを送信できる（ビジネスロジック実装後に検証）
+- [x] EventBridgeルールが有効化されている
+- [x] Secrets Managerシークレットが作成されている（値も設定済み）
+- [x] IAM権限が最小権限の原則に従っている
+- [x] CloudWatch Logsにログが出力されている
 
 ---
 

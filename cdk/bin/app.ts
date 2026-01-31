@@ -5,7 +5,7 @@ import { WeatherBroadcastStack } from "../lib/weather-broadcast-stack";
 
 const app = new cdk.App();
 new WeatherBroadcastStack(app, "WeatherBroadcastStack", {
-  env: {
-    region: "ap-northeast-1",
-  },
+	env: {
+		region: "ap-northeast-1",
+	},
 });
