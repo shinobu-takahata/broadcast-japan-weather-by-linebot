@@ -1,16 +1,11 @@
-import json
-import logging
+import sys
+import os
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+# app/ ディレクトリをPythonパスに追加
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "app"))
+
+from handlers.webhook import handler as _webhook_handler  # noqa: E402
 
 
 def handler(event, context):
-    logger.info("Webhook handler invoked")
-    logger.info(f"Event: {json.dumps(event)}")
-
-    return {
-        "statusCode": 200,
-        "headers": {"Content-Type": "application/json"},
-        "body": json.dumps({"message": "OK"}),
-    }
+    return _webhook_handler(event, context)
