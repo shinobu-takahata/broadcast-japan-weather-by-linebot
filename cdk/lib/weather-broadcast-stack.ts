@@ -69,8 +69,10 @@ export class WeatherBroadcastStack extends cdk.Stack {
 		const webhookHandler = new lambda.Function(this, "LineWebhookHandler", {
 			functionName: "weather-broadcast-line-webhook-handler",
 			runtime: lambda.Runtime.PYTHON_3_12,
-			handler: "index.handler",
-			code: lambda.Code.fromAsset(path.join(__dirname, "../lambda/webhook")),
+			handler: "handlers.webhook.handler",
+			code: lambda.Code.fromAsset(path.join(__dirname, "../../app"), {
+				exclude: [".venv", "__pycache__", "tests", ".devcontainer", "*.pyc"],
+			}),
 			timeout: cdk.Duration.seconds(30),
 			memorySize: 256,
 			architecture: lambda.Architecture.X86_64,
