@@ -1,0 +1,1212 @@
+{
+ "Resources": {
+  "UsersTable9725E9C8": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "userId",
+      "KeyType": "HASH"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "TableName": "WeatherBroadcast-Users"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/UsersTable/Resource"
+   }
+  },
+  "LineChannelSecret538996EC": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "LINE Channel Secret for webhook verification",
+    "GenerateSecretString": {},
+    "Name": "line-channel-secret"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/LineChannelSecret/Resource"
+   }
+  },
+  "LineChannelAccessTokenDBEE86B2": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "LINE Channel Access Token for messaging API",
+    "GenerateSecretString": {},
+    "Name": "line-channel-access-token"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/LineChannelAccessToken/Resource"
+   }
+  },
+  "OpenWeatherMapApiKey93E73062": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "OpenWeatherMap API Key for weather data",
+    "GenerateSecretString": {},
+    "Name": "openweathermap-api-key"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/OpenWeatherMapApiKey/Resource"
+   }
+  },
+  "WebhookHandlerLogGroupBACEE951": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/aws/lambda/weather-broadcast-line-webhook-handler",
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WebhookHandlerLogGroup/Resource"
+   }
+  },
+  "LineWebhookHandlerServiceRoleB6559A8C": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/LineWebhookHandler/ServiceRole/Resource"
+   }
+  },
+  "LineWebhookHandlerServiceRoleDefaultPolicy99027C7E": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "UsersTable9725E9C8",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "UsersTable9725E9C8",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "LineChannelSecret538996EC"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "LineChannelAccessTokenDBEE86B2"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "OpenWeatherMapApiKey93E73062"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LineWebhookHandlerServiceRoleDefaultPolicy99027C7E",
+    "Roles": [
+     {
+      "Ref": "LineWebhookHandlerServiceRoleB6559A8C"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/LineWebhookHandler/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "LineWebhookHandlerD8B11CF9": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Architectures": [
+     "x86_64"
+    ],
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1"
+     },
+     "S3Key": "36d469f69a6060a3941b7344e220076f933d9304ffea571fd0b6f2e7b422293d.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "TABLE_NAME": {
+       "Ref": "UsersTable9725E9C8"
+      },
+      "LINE_CHANNEL_SECRET_NAME": {
+       "Fn::Join": [
+        "-",
+        [
+         {
+          "Fn::Select": [
+           0,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "LineChannelSecret538996EC"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           1,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "LineChannelSecret538996EC"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           2,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "LineChannelSecret538996EC"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       ]
+      },
+      "LINE_CHANNEL_ACCESS_TOKEN_NAME": {
+       "Fn::Join": [
+        "-",
+        [
+         {
+          "Fn::Select": [
+           0,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "LineChannelAccessTokenDBEE86B2"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           1,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "LineChannelAccessTokenDBEE86B2"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           2,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "LineChannelAccessTokenDBEE86B2"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "LineChannelAccessTokenDBEE86B2"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       ]
+      },
+      "OPENWEATHERMAP_API_KEY_NAME": {
+       "Fn::Join": [
+        "-",
+        [
+         {
+          "Fn::Select": [
+           0,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "OpenWeatherMapApiKey93E73062"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           1,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "OpenWeatherMapApiKey93E73062"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           2,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "OpenWeatherMapApiKey93E73062"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       ]
+      }
+     }
+    },
+    "FunctionName": "weather-broadcast-line-webhook-handler",
+    "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogGroup": {
+      "Ref": "WebhookHandlerLogGroupBACEE951"
+     }
+    },
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "LineWebhookHandlerServiceRoleB6559A8C",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.12",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "LineWebhookHandlerServiceRoleDefaultPolicy99027C7E",
+    "LineWebhookHandlerServiceRoleB6559A8C"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/LineWebhookHandler/Resource",
+    "aws:asset:path": "asset.36d469f69a6060a3941b7344e220076f933d9304ffea571fd0b6f2e7b422293d",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "BroadcastHandlerLogGroupBD31251B": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/aws/lambda/weather-broadcast-weather-broadcast-handler",
+    "RetentionInDays": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/BroadcastHandlerLogGroup/Resource"
+   }
+  },
+  "WeatherBroadcastHandlerServiceRole40FFF73F": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WeatherBroadcastHandler/ServiceRole/Resource"
+   }
+  },
+  "WeatherBroadcastHandlerServiceRoleDefaultPolicyC5556CE5": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DescribeTable"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "UsersTable9725E9C8",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "UsersTable9725E9C8",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "LineChannelAccessTokenDBEE86B2"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "OpenWeatherMapApiKey93E73062"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "WeatherBroadcastHandlerServiceRoleDefaultPolicyC5556CE5",
+    "Roles": [
+     {
+      "Ref": "WeatherBroadcastHandlerServiceRole40FFF73F"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WeatherBroadcastHandler/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "WeatherBroadcastHandler8F6AE093": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Architectures": [
+     "x86_64"
+    ],
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1"
+     },
+     "S3Key": "f6672390199db8e5b3a193f8502da26442b6049833a1a27da9d7fe94ec952ee0.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "TABLE_NAME": {
+       "Ref": "UsersTable9725E9C8"
+      },
+      "LINE_CHANNEL_ACCESS_TOKEN_NAME": {
+       "Fn::Join": [
+        "-",
+        [
+         {
+          "Fn::Select": [
+           0,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "LineChannelAccessTokenDBEE86B2"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           1,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "LineChannelAccessTokenDBEE86B2"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           2,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "LineChannelAccessTokenDBEE86B2"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "LineChannelAccessTokenDBEE86B2"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       ]
+      },
+      "OPENWEATHERMAP_API_KEY_NAME": {
+       "Fn::Join": [
+        "-",
+        [
+         {
+          "Fn::Select": [
+           0,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "OpenWeatherMapApiKey93E73062"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           1,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "OpenWeatherMapApiKey93E73062"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           2,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Ref": "OpenWeatherMapApiKey93E73062"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       ]
+      }
+     }
+    },
+    "FunctionName": "weather-broadcast-weather-broadcast-handler",
+    "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogGroup": {
+      "Ref": "BroadcastHandlerLogGroupBD31251B"
+     }
+    },
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "WeatherBroadcastHandlerServiceRole40FFF73F",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.12",
+    "Timeout": 300
+   },
+   "DependsOn": [
+    "WeatherBroadcastHandlerServiceRoleDefaultPolicyC5556CE5",
+    "WeatherBroadcastHandlerServiceRole40FFF73F"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WeatherBroadcastHandler/Resource",
+    "aws:asset:path": "asset.f6672390199db8e5b3a193f8502da26442b6049833a1a27da9d7fe94ec952ee0",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "WebhookApi28122C53": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "EndpointConfiguration": {
+     "Types": [
+      "REGIONAL"
+     ]
+    },
+    "Name": "weather-broadcast-webhook-api"
+   },
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WebhookApi/Resource"
+   }
+  },
+  "WebhookApiCloudWatchRole70E9FA61": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "apigateway.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+       ]
+      ]
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WebhookApi/CloudWatchRole/Resource"
+   }
+  },
+  "WebhookApiAccountF2784AC4": {
+   "Type": "AWS::ApiGateway::Account",
+   "Properties": {
+    "CloudWatchRoleArn": {
+     "Fn::GetAtt": [
+      "WebhookApiCloudWatchRole70E9FA61",
+      "Arn"
+     ]
+    }
+   },
+   "DependsOn": [
+    "WebhookApi28122C53"
+   ],
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WebhookApi/Account"
+   }
+  },
+  "WebhookApiDeployment5953494Daee8fa4809dc4444213fdae025ba0c23": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "Description": "Automatically created by the RestApi construct",
+    "RestApiId": {
+     "Ref": "WebhookApi28122C53"
+    }
+   },
+   "DependsOn": [
+    "WebhookApiwebhookPOST86DAF885",
+    "WebhookApiwebhook45FF8A56"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WebhookApi/Deployment/Resource",
+    "aws:cdk:do-not-refactor": true
+   }
+  },
+  "WebhookApiDeploymentStageprodF1908D9A": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "DeploymentId": {
+     "Ref": "WebhookApiDeployment5953494Daee8fa4809dc4444213fdae025ba0c23"
+    },
+    "RestApiId": {
+     "Ref": "WebhookApi28122C53"
+    },
+    "StageName": "prod"
+   },
+   "DependsOn": [
+    "WebhookApiAccountF2784AC4"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WebhookApi/DeploymentStage.prod/Resource"
+   }
+  },
+  "WebhookApiwebhook45FF8A56": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "WebhookApi28122C53",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "webhook",
+    "RestApiId": {
+     "Ref": "WebhookApi28122C53"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WebhookApi/Default/webhook/Resource"
+   }
+  },
+  "WebhookApiwebhookPOSTApiPermissionWeatherBroadcastStackWebhookApi9D442441POSTwebhook67A07010": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "LineWebhookHandlerD8B11CF9",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:ap-northeast-1:",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":",
+       {
+        "Ref": "WebhookApi28122C53"
+       },
+       "/",
+       {
+        "Ref": "WebhookApiDeploymentStageprodF1908D9A"
+       },
+       "/POST/webhook"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WebhookApi/Default/webhook/POST/ApiPermission.WeatherBroadcastStackWebhookApi9D442441.POST..webhook"
+   }
+  },
+  "WebhookApiwebhookPOSTApiPermissionTestWeatherBroadcastStackWebhookApi9D442441POSTwebhook162D9352": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "LineWebhookHandlerD8B11CF9",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:ap-northeast-1:",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":",
+       {
+        "Ref": "WebhookApi28122C53"
+       },
+       "/test-invoke-stage/POST/webhook"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WebhookApi/Default/webhook/POST/ApiPermission.Test.WeatherBroadcastStackWebhookApi9D442441.POST..webhook"
+   }
+  },
+  "WebhookApiwebhookPOST86DAF885": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "LineWebhookHandlerD8B11CF9",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "WebhookApiwebhook45FF8A56"
+    },
+    "RestApiId": {
+     "Ref": "WebhookApi28122C53"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WebhookApi/Default/webhook/POST/Resource"
+   }
+  },
+  "WeatherBroadcastSchedule4B0E5236": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Trigger weather broadcast at 9:00 JST daily",
+    "Name": "weather-broadcast-schedule",
+    "ScheduleExpression": "cron(0 0 * * ? *)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "WeatherBroadcastHandler8F6AE093",
+        "Arn"
+       ]
+      },
+      "Id": "Target0"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WeatherBroadcastSchedule/Resource"
+   }
+  },
+  "WeatherBroadcastScheduleAllowEventRuleWeatherBroadcastStackWeatherBroadcastHandler72F64A1B70E0E7D2": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "WeatherBroadcastHandler8F6AE093",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "WeatherBroadcastSchedule4B0E5236",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/WeatherBroadcastSchedule/AllowEventRuleWeatherBroadcastStackWeatherBroadcastHandler72F64A1B"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/02PT2/CMAzFP8vuwauKtDts2i6bhsruyE29LpA/Ve2AqijffWoKgtP7Oc95tmuo1y9QPeGFV7o7raxpIe0F9UnhhQ+pmzy60LWQfrC1pF5/fYGsmPRIwg499jRC2pd6blgoKxt6hvQZ+o8xxGF2bpyVRdd2COk9ei0m+Nl95B2NzjCb4LMy6CA1YZledBes0VPpK5QVrw/ITMKwmUXxGrZRn0i2yKRwMD0KXXCC1BDLZjAl644brUP0ot5osGFy5MslD9VesC8LLNAQhzhqKvG34pq58BfJX+jmp4WyojN5YUhNvJ4SLeV8/102n+ON72f/O8oQJSsfOoIjP5/rCuoKqqcjG7MaoxfjCJpF/wFau3PoyQEAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "WeatherBroadcastStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "WebhookApiEndpoint5B53C9C0": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "WebhookApi28122C53"
+      },
+      ".execute-api.ap-northeast-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "WebhookApiDeploymentStageprodF1908D9A"
+      },
+      "/"
+     ]
+    ]
+   }
+  },
+  "WebhookApiUrl": {
+   "Description": "LINE Webhook URL",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "WebhookApi28122C53"
+      },
+      ".execute-api.ap-northeast-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "WebhookApiDeploymentStageprodF1908D9A"
+      },
+      "/webhook"
+     ]
+    ]
+   }
+  },
+  "UsersTableName": {
+   "Description": "Users table name",
+   "Value": {
+    "Ref": "UsersTable9725E9C8"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

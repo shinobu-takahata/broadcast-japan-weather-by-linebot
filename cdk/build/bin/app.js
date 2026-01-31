@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+require("source-map-support/register");
+const cdk = require("aws-cdk-lib");
+const weather_broadcast_stack_1 = require("../lib/weather-broadcast-stack");
+const app = new cdk.App();
+new weather_broadcast_stack_1.WeatherBroadcastStack(app, "WeatherBroadcastStack", {
+    env: {
+        region: "ap-northeast-1",
+    },
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYXBwLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vLi4vYmluL2FwcC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7QUFDQSx1Q0FBcUM7QUFDckMsbUNBQW1DO0FBQ25DLDRFQUF1RTtBQUV2RSxNQUFNLEdBQUcsR0FBRyxJQUFJLEdBQUcsQ0FBQyxHQUFHLEVBQUUsQ0FBQztBQUMxQixJQUFJLCtDQUFxQixDQUFDLEdBQUcsRUFBRSx1QkFBdUIsRUFBRTtJQUN0RCxHQUFHLEVBQUU7UUFDSCxNQUFNLEVBQUUsZ0JBQWdCO0tBQ3pCO0NBQ0YsQ0FBQyxDQUFDIiwic291cmNlc0NvbnRlbnQiOlsiIyEvdXNyL2Jpbi9lbnYgbm9kZVxuaW1wb3J0IFwic291cmNlLW1hcC1zdXBwb3J0L3JlZ2lzdGVyXCI7XG5pbXBvcnQgKiBhcyBjZGsgZnJvbSBcImF3cy1jZGstbGliXCI7XG5pbXBvcnQgeyBXZWF0aGVyQnJvYWRjYXN0U3RhY2sgfSBmcm9tIFwiLi4vbGliL3dlYXRoZXItYnJvYWRjYXN0LXN0YWNrXCI7XG5cbmNvbnN0IGFwcCA9IG5ldyBjZGsuQXBwKCk7XG5uZXcgV2VhdGhlckJyb2FkY2FzdFN0YWNrKGFwcCwgXCJXZWF0aGVyQnJvYWRjYXN0U3RhY2tcIiwge1xuICBlbnY6IHtcbiAgICByZWdpb246IFwiYXAtbm9ydGhlYXN0LTFcIixcbiAgfSxcbn0pO1xuIl19

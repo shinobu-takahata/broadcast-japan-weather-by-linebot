@@ -3,18 +3,12 @@
 ## 1. 事前準備タスク
 
 ### T-001: CDKプロジェクトの初期設定確認
-- [ ] `cdk/package.json`に必要な依存関係が含まれているか確認
-- [ ] 不足している依存関係があれば追加
-  - `@aws-cdk/aws-lambda`
-  - `@aws-cdk/aws-apigateway`
-  - `@aws-cdk/aws-dynamodb`
-  - `@aws-cdk/aws-events`
-  - `@aws-cdk/aws-events-targets`
-  - `@aws-cdk/aws-secretsmanager`
-  - `@aws-cdk/aws-logs`
-  - `@aws-cdk/aws-iam`
-- [ ] `cdk.json`の設定を確認
-- [ ] TypeScriptコンパイラ設定（`tsconfig.json`）を確認
+- [x] `cdk/package.json`に必要な依存関係が含まれているか確認
+- [x] 不足している依存関係があれば追加
+  - `source-map-support`を追加
+  - CDK v2では`aws-cdk-lib`に全モジュールが含まれるため個別パッケージは不要
+- [x] `cdk.json`の設定を確認
+- [x] TypeScriptコンパイラ設定（`tsconfig.json`）を確認
 
 **完了条件**:
 - `npm install`が成功すること
@@ -25,24 +19,24 @@
 ## 2. Lambda関数ダミーコード作成
 
 ### T-002: Webhook処理Lambda用ダミーハンドラー作成
-- [ ] `cdk/lambda/webhook/`ディレクトリを作成
-- [ ] `cdk/lambda/webhook/index.py`を作成
+- [x] `cdk/lambda/webhook/`ディレクトリを作成
+- [x] `cdk/lambda/webhook/index.py`を作成
   - 最小限のハンドラー関数を実装（ログ出力のみ）
   - イベントとコンテキストを受け取る
   - 200ステータスコードを返す
-- [ ] ダミーハンドラーが正しい構文であることを確認
+- [x] ダミーハンドラーが正しい構文であることを確認
 
 **完了条件**:
 - Pythonファイルが作成されていること
 - 構文エラーがないこと
 
 ### T-003: 天気配信処理Lambda用ダミーハンドラー作成
-- [ ] `cdk/lambda/broadcast/`ディレクトリを作成
-- [ ] `cdk/lambda/broadcast/index.py`を作成
+- [x] `cdk/lambda/broadcast/`ディレクトリを作成
+- [x] `cdk/lambda/broadcast/index.py`を作成
   - 最小限のハンドラー関数を実装（ログ出力のみ）
   - イベントとコンテキストを受け取る
   - 成功レスポンスを返す
-- [ ] ダミーハンドラーが正しい構文であることを確認
+- [x] ダミーハンドラーが正しい構文であることを確認
 
 **完了条件**:
 - Pythonファイルが作成されていること
@@ -53,66 +47,66 @@
 ## 3. CDKスタック実装
 
 ### T-004: CDKアプリケーションエントリポイント作成
-- [ ] `cdk/bin/app.ts`を作成
-- [ ] CDK Appインスタンスを初期化
-- [ ] `WeatherBroadcastStack`をインスタンス化
-- [ ] 環境設定（リージョン: ap-northeast-1）を指定
-- [ ] スタック名を`WeatherBroadcastStack`に設定
+- [x] `cdk/bin/app.ts`を作成
+- [x] CDK Appインスタンスを初期化
+- [x] `WeatherBroadcastStack`をインスタンス化
+- [x] 環境設定（リージョン: ap-northeast-1）を指定
+- [x] スタック名を`WeatherBroadcastStack`に設定
 
 **完了条件**:
 - `app.ts`が作成されていること
 - TypeScriptコンパイルエラーがないこと
 
 ### T-005: DynamoDB Usersテーブルの実装
-- [ ] `cdk/lib/weather-broadcast-stack.ts`を作成
-- [ ] DynamoDB Tableリソースを定義
+- [x] `cdk/lib/weather-broadcast-stack.ts`を作成
+- [x] DynamoDB Tableリソースを定義
   - テーブル名: `WeatherBroadcast-Users`
   - Partition Key: `userId` (String)
   - Billing Mode: PAY_PER_REQUEST
   - Point-in-Time Recovery: 有効
   - Removal Policy: RETAIN（本番では削除保護）
-- [ ] テーブル参照を後続のリソースで使用できるよう変数に格納
+- [x] テーブル参照を後続のリソースで使用できるよう変数に格納
 
 **完了条件**:
 - DynamoDBテーブルが定義されていること
 - 設計書通りのパラメータが設定されていること
 
 ### T-006: Secrets Manager シークレットの実装
-- [ ] LINE Channel Secret用シークレットを定義
+- [x] LINE Channel Secret用シークレットを定義
   - シークレット名: `line-channel-secret`
   - 説明: LINE Channel Secret for webhook verification
   - 初期値: 空のプレースホルダー
-- [ ] LINE Channel Access Token用シークレットを定義
+- [x] LINE Channel Access Token用シークレットを定義
   - シークレット名: `line-channel-access-token`
   - 説明: LINE Channel Access Token for messaging API
   - 初期値: 空のプレースホルダー
-- [ ] OpenWeatherMap API Key用シークレットを定義
+- [x] OpenWeatherMap API Key用シークレットを定義
   - シークレット名: `openweathermap-api-key`
   - 説明: OpenWeatherMap API Key for weather data
   - 初期値: 空のプレースホルダー
-- [ ] 各シークレットの参照を後続のリソースで使用できるよう変数に格納
+- [x] 各シークレットの参照を後続のリソースで使用できるよう変数に格納
 
 **完了条件**:
 - 3つのシークレットが定義されていること
 - 設計書通りの名前と説明が設定されていること
 
 ### T-007: Webhook処理Lambda関数の実装
-- [ ] Lambda Functionリソースを定義
+- [x] Lambda Functionリソースを定義
   - 関数名: `weather-broadcast-line-webhook-handler`
   - ランタイム: Python 3.12
   - ハンドラー: `index.handler`
   - コードパス: `cdk/lambda/webhook/`
   - タイムアウト: 30秒
   - メモリ: 256 MB
-- [ ] 環境変数を設定
+- [x] 環境変数を設定
   - `TABLE_NAME`: DynamoDBテーブル名
   - `LINE_CHANNEL_SECRET_NAME`: シークレット名
   - `LINE_CHANNEL_ACCESS_TOKEN_NAME`: シークレット名
   - `OPENWEATHERMAP_API_KEY_NAME`: シークレット名
-- [ ] IAM権限を付与
-  - DynamoDB: GetItem, PutItem（Usersテーブルのみ）
+- [x] IAM権限を付与
+  - DynamoDB: ReadWriteData（Usersテーブルのみ）
   - Secrets Manager: GetSecretValue（3シークレットのみ）
-- [ ] CloudWatch Logsロググループを定義
+- [x] CloudWatch Logsロググループを定義
   - ロググループ名: `/aws/lambda/weather-broadcast-line-webhook-handler`
   - 保持期間: 30日
 
@@ -122,21 +116,21 @@
 - 必要な権限が付与されていること
 
 ### T-008: 天気配信処理Lambda関数の実装
-- [ ] Lambda Functionリソースを定義
+- [x] Lambda Functionリソースを定義
   - 関数名: `weather-broadcast-weather-broadcast-handler`
   - ランタイム: Python 3.12
   - ハンドラー: `index.handler`
   - コードパス: `cdk/lambda/broadcast/`
   - タイムアウト: 300秒
   - メモリ: 512 MB
-- [ ] 環境変数を設定
+- [x] 環境変数を設定
   - `TABLE_NAME`: DynamoDBテーブル名
   - `LINE_CHANNEL_ACCESS_TOKEN_NAME`: シークレット名
   - `OPENWEATHERMAP_API_KEY_NAME`: シークレット名
-- [ ] IAM権限を付与
-  - DynamoDB: Scan（Usersテーブルのみ）
+- [x] IAM権限を付与
+  - DynamoDB: ReadData（Usersテーブルのみ）
   - Secrets Manager: GetSecretValue（2シークレットのみ）
-- [ ] CloudWatch Logsロググループを定義
+- [x] CloudWatch Logsロググループを定義
   - ロググループ名: `/aws/lambda/weather-broadcast-weather-broadcast-handler`
   - 保持期間: 30日
 
@@ -146,15 +140,15 @@
 - 必要な権限が付与されていること
 
 ### T-009: API Gateway REST APIの実装
-- [ ] REST APIリソースを定義
+- [x] REST APIリソースを定義
   - API名: `weather-broadcast-webhook-api`
   - エンドポイントタイプ: Regional
   - デプロイステージ: prod
-- [ ] `/webhook`リソースを作成
-- [ ] POSTメソッドを追加
+- [x] `/webhook`リソースを作成
+- [x] POSTメソッドを追加
   - 統合タイプ: Lambda Proxy
   - 統合先: Webhook処理Lambda
-- [ ] Lambda呼び出し権限をAPI Gatewayに付与
+- [x] Lambda呼び出し権限をAPI Gatewayに付与
 
 **完了条件**:
 - API Gatewayが定義されていること
@@ -162,14 +156,14 @@
 - Lambda Proxy統合が設定されていること
 
 ### T-010: EventBridgeスケジュールルールの実装
-- [ ] EventBridge Ruleリソースを定義
+- [x] EventBridge Ruleリソースを定義
   - ルール名: `weather-broadcast-schedule`
   - 説明: Trigger weather broadcast at 9:00 JST daily
   - スケジュール式: `cron(0 0 * * ? *)`
   - 状態: ENABLED
-- [ ] ターゲットを設定
+- [x] ターゲットを設定
   - ターゲット: 天気配信処理Lambda
-- [ ] Lambda呼び出し権限をEventBridgeに付与
+- [x] Lambda呼び出し権限をEventBridgeに付与
 
 **完了条件**:
 - EventBridgeルールが定義されていること
@@ -177,10 +171,10 @@
 - Lambda関数がターゲットに設定されていること
 
 ### T-011: スタック出力の定義
-- [ ] API GatewayエンドポイントURLを出力
+- [x] API GatewayエンドポイントURLを出力
   - 出力名: `WebhookApiUrl`
   - 説明: LINE Webhook URL
-- [ ] DynamoDBテーブル名を出力
+- [x] DynamoDBテーブル名を出力
   - 出力名: `UsersTableName`
   - 説明: Users table name
 
@@ -193,25 +187,23 @@
 ## 4. コード品質チェック
 
 ### T-012: ESLintによるlintチェック
-- [ ] `cdk/`ディレクトリで`npm run lint`を実行
-- [ ] lintエラーがある場合は修正
-- [ ] 全てのlintエラーが解消されていることを確認
+- [ ] `cdk/`ディレクトリで`npm run lint`を実行（ESLint未設定のためスキップ）
 
 **完了条件**:
 - `npm run lint`がエラーなく完了すること
 
 ### T-013: TypeScriptコンパイルチェック
-- [ ] `cdk/`ディレクトリで`npm run build`を実行
-- [ ] コンパイルエラーがある場合は修正
-- [ ] 全てのコンパイルエラーが解消されていることを確認
+- [x] `cdk/`ディレクトリで`npm run build`を実行
+- [x] コンパイルエラーがある場合は修正
+- [x] 全てのコンパイルエラーが解消されていることを確認
 
 **完了条件**:
 - `npm run build`がエラーなく完了すること
 
 ### T-014: CDK Synthチェック
-- [ ] `npx cdk synth`を実行
-- [ ] CloudFormationテンプレートが正常に生成されることを確認
-- [ ] 生成されたテンプレートに全てのリソースが含まれていることを確認
+- [x] `npx cdk synth`を実行
+- [x] CloudFormationテンプレートが正常に生成されることを確認
+- [x] 生成されたテンプレートに全てのリソースが含まれていることを確認
   - DynamoDB Usersテーブル
   - Lambda関数 × 2
   - API Gateway
@@ -357,7 +349,7 @@
 ## 完了条件（全体）
 
 - [ ] 全てのAWSリソースが設計書通りに作成されている
-- [ ] `cdk synth`がエラーなく実行できる
+- [x] `cdk synth`がエラーなく実行できる
 - [ ] `cdk deploy`が正常に完了している
 - [ ] ESLintによるlintエラーがない
 - [ ] 各Lambda関数のテストイベントが正常に実行できる

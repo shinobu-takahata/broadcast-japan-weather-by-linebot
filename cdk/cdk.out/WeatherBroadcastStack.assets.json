@@ -1,0 +1,51 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "36d469f69a6060a3941b7344e220076f933d9304ffea571fd0b6f2e7b422293d": {
+      "displayName": "LineWebhookHandler/Code",
+      "source": {
+        "path": "asset.36d469f69a6060a3941b7344e220076f933d9304ffea571fd0b6f2e7b422293d",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "current_account-ap-northeast-1-9d910306": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1",
+          "objectKey": "36d469f69a6060a3941b7344e220076f933d9304ffea571fd0b6f2e7b422293d.zip",
+          "region": "ap-northeast-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-ap-northeast-1"
+        }
+      }
+    },
+    "f6672390199db8e5b3a193f8502da26442b6049833a1a27da9d7fe94ec952ee0": {
+      "displayName": "WeatherBroadcastHandler/Code",
+      "source": {
+        "path": "asset.f6672390199db8e5b3a193f8502da26442b6049833a1a27da9d7fe94ec952ee0",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "current_account-ap-northeast-1-b58aa94f": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1",
+          "objectKey": "f6672390199db8e5b3a193f8502da26442b6049833a1a27da9d7fe94ec952ee0.zip",
+          "region": "ap-northeast-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-ap-northeast-1"
+        }
+      }
+    },
+    "c7a0da76dfd0e0e326e37df4816514f663718273d0ede9bcb802cfbe04bacec1": {
+      "displayName": "WeatherBroadcastStack Template",
+      "source": {
+        "path": "WeatherBroadcastStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-ap-northeast-1-b8207c7c": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1",
+          "objectKey": "c7a0da76dfd0e0e326e37df4816514f663718273d0ede9bcb802cfbe04bacec1.json",
+          "region": "ap-northeast-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-ap-northeast-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}
