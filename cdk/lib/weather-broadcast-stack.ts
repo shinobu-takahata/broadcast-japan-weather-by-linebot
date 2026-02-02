@@ -66,13 +66,35 @@ export class WeatherBroadcastStack extends cdk.Stack {
 			removalPolicy: cdk.RemovalPolicy.DESTROY,
 		});
 
+		const appCode = lambda.Code.fromAsset(
+			path.join(__dirname, "../../app"),
+			{
+				bundling: {
+					image: lambda.Runtime.PYTHON_3_12.bundlingImage,
+					command: [
+						"bash",
+						"-c",
+						"pip install -r requirements.txt -t /asset-output && rsync -au --exclude '.venv' --exclude '__pycache__' --exclude 'tests' --exclude '.devcontainer' --exclude '*.pyc' --exclude 'pyproject.toml' --exclude 'uv.lock' --exclude 'Dockerfile' --exclude 'requirements.txt' . /asset-output",
+					],
+				},
+				exclude: [
+					".venv",
+					"__pycache__",
+					"tests",
+					".devcontainer",
+					"*.pyc",
+					"pyproject.toml",
+					"uv.lock",
+					"Dockerfile",
+				],
+			},
+		);
+
 		const webhookHandler = new lambda.Function(this, "LineWebhookHandler", {
 			functionName: "weather-broadcast-line-webhook-handler",
 			runtime: lambda.Runtime.PYTHON_3_12,
 			handler: "handlers.webhook.handler",
-			code: lambda.Code.fromAsset(path.join(__dirname, "../../app"), {
-				exclude: [".venv", "__pycache__", "tests", ".devcontainer", "*.pyc"],
-			}),
+			code: appCode,
 			timeout: cdk.Duration.seconds(30),
 			memorySize: 256,
 			architecture: lambda.Architecture.X86_64,
@@ -110,10 +132,8 @@ export class WeatherBroadcastStack extends cdk.Stack {
 			{
 				functionName: "weather-broadcast-weather-broadcast-handler",
 				runtime: lambda.Runtime.PYTHON_3_12,
-				handler: "index.handler",
-				code: lambda.Code.fromAsset(
-					path.join(__dirname, "../lambda/broadcast"),
-				),
+				handler: "handlers.broadcast.handler",
+				code: appCode,
 				timeout: cdk.Duration.seconds(300),
 				memorySize: 512,
 				architecture: lambda.Architecture.X86_64,

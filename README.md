@@ -18,7 +18,11 @@ docker compose up -d cdk
 ### 2. 依存関係のインストール
 
 ```bash
+# CDK依存関係
 docker compose exec -e AWS_PROFILE=takahata cdk npm install
+
+# Python依存関係（Lambda用）
+docker compose run --rm app uv pip install -r pyproject.toml --target .deps
 ```
 
 ### 3. CDK Bootstrap（初回のみ）

@@ -216,13 +216,13 @@ jobs:
 
       - uses: astral-sh/setup-uv@v4
 
+      - name: Generate requirements.txt from pyproject.toml
+        working-directory: app
+        run: uv pip compile pyproject.toml -o requirements.txt
+
       - name: Install CDK dependencies
         working-directory: cdk
         run: npm ci
-
-      - name: Install Python dependencies
-        working-directory: app
-        run: uv sync
 
       - name: CDK Deploy
         working-directory: cdk
