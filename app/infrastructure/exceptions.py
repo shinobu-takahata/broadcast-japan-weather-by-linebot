@@ -24,3 +24,7 @@ class RepositoryException(Exception):
 
 class WeatherAPIException(Exception):
     """OpenWeatherMap APIのエラー"""
+
+
+class JMAAPIException(Exception):
+    """気象庁APIのエラー"""

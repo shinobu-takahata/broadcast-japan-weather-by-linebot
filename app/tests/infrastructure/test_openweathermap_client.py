@@ -15,9 +15,9 @@ class TestOpenWeatherMapClient:
         mock_response = MagicMock()
         mock_response.raise_for_status.return_value = None
         mock_response.json.return_value = {
-            "hourly": [
-                {"dt": 1706497200, "temp": 8.5, "pop": 0.2},
-                {"dt": 1706500800, "temp": 9.0, "pop": 0.3},
+            "list": [
+                {"dt": 1706497200, "main": {"temp": 8.5}, "pop": 0.2},
+                {"dt": 1706500800, "main": {"temp": 9.0}, "pop": 0.3},
             ]
         }
         mock_get.return_value = mock_response
@@ -26,6 +26,7 @@ class TestOpenWeatherMapClient:
 
         assert len(result) == 2
         assert result[0]["temp"] == 8.5
+        assert "pop" not in result[0]
         mock_get.assert_called_once()
         call_kwargs = mock_get.call_args
         assert call_kwargs.kwargs["params"]["lat"] == 35.6619

@@ -5,6 +5,8 @@ import boto3
 
 from domain.services.weather_calculator import WeatherCalculator
 from infrastructure.dynamodb.user_repository import DynamoDBUserRepository
+from infrastructure.jma.area_mapper import JmaAreaMapper
+from infrastructure.jma.client import JmaForecastClient
 from infrastructure.line.messaging_client import LineMessagingClient
 from infrastructure.openweathermap.client import OpenWeatherMapClient
 from usecases.broadcast_weather import BroadcastWeatherUseCase
@@ -36,12 +38,16 @@ def handler(event: dict, context: Any) -> dict:
         weather_client = OpenWeatherMapClient(openweathermap_api_key)
         messaging_client = LineMessagingClient(channel_access_token)
         weather_calculator = WeatherCalculator()
+        jma_client = JmaForecastClient()
+        jma_area_mapper = JmaAreaMapper()
 
         usecase = BroadcastWeatherUseCase(
             user_repository=user_repository,
             weather_client=weather_client,
             messaging_client=messaging_client,
             weather_calculator=weather_calculator,
+            jma_client=jma_client,
+            jma_area_mapper=jma_area_mapper,
         )
         usecase.execute()
 

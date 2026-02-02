@@ -2,7 +2,9 @@ from collections import defaultdict
 
 from domain.repositories.user_repository import UserRepository
 from domain.services.weather_calculator import WeatherCalculator
-from infrastructure.exceptions import MessagingException, WeatherAPIException
+from infrastructure.exceptions import JMAAPIException, MessagingException, WeatherAPIException
+from infrastructure.jma.area_mapper import JmaAreaMapper
+from infrastructure.jma.client import JmaForecastClient
 from infrastructure.line.messaging_client import LineMessagingClient
 from infrastructure.openweathermap.client import OpenWeatherMapClient
 from utils.logger import get_logger, log_error, log_info
@@ -24,11 +26,15 @@ class BroadcastWeatherUseCase:
         weather_client: OpenWeatherMapClient,
         messaging_client: LineMessagingClient,
         weather_calculator: WeatherCalculator,
+        jma_client: JmaForecastClient,
+        jma_area_mapper: JmaAreaMapper,
     ) -> None:
         self.user_repository = user_repository
         self.weather_client = weather_client
         self.messaging_client = messaging_client
         self.weather_calculator = weather_calculator
+        self.jma_client = jma_client
+        self.jma_area_mapper = jma_area_mapper
 
     def execute(self) -> None:
         """全ユーザーに天気情報を配信"""
@@ -58,7 +64,7 @@ class BroadcastWeatherUseCase:
         for (lat, lon), group_users in groups.items():
             city_name = group_users[0].location.city_name
 
-            # 天気情報取得
+            # 天気情報取得（気温: OWM）
             try:
                 hourly_data = self.weather_client.get_hourly_weather(lat, lon)
             except WeatherAPIException as e:
@@ -74,9 +80,24 @@ class BroadcastWeatherUseCase:
                 failure_count += len(group_users)
                 continue
 
+            # 降水確率取得（JMA）
+            try:
+                office_code, class10_code = self.jma_area_mapper.find_codes(city_name)
+                jma_pops = self.jma_client.get_pops(office_code, class10_code)
+            except JMAAPIException as e:
+                log_error(
+                    logger,
+                    "気象庁API取得失敗",
+                    error=str(e),
+                    city_name=city_name,
+                    skipped_users=len(group_users),
+                )
+                failure_count += len(group_users)
+                continue
+
             # 実質天気算出
             try:
-                weather = self.weather_calculator.calculate(hourly_data)
+                weather = self.weather_calculator.calculate(hourly_data, jma_pops)
             except ValueError as e:
                 log_error(
                     logger,
