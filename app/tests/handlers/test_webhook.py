@@ -37,14 +37,13 @@ class TestWebhookHandler:
     @patch("handlers.webhook._get_secret")
     @patch("handlers.webhook.RegisterRegionUseCase")
     @patch("handlers.webhook.LineMessagingClient")
-    @patch("handlers.webhook.GeocodingClient")
+    @patch("handlers.webhook.GsiGeocodingClient")
     @patch("handlers.webhook.DynamoDBUserRepository")
     @patch.dict(
         "os.environ",
         {
             "LINE_CHANNEL_SECRET_NAME": "secret-name",
             "LINE_CHANNEL_ACCESS_TOKEN_NAME": "token-name",
-            "OPENWEATHERMAP_API_KEY_NAME": "key-name",
             "TABLE_NAME": "test-table",
         },
     )
@@ -52,7 +51,6 @@ class TestWebhookHandler:
         mock_secret.side_effect = lambda name: {
             "secret-name": "test-secret",
             "token-name": "test-token",
-            "key-name": "test-key",
         }[name]
 
         body = {
@@ -80,7 +78,6 @@ class TestWebhookHandler:
         {
             "LINE_CHANNEL_SECRET_NAME": "secret-name",
             "LINE_CHANNEL_ACCESS_TOKEN_NAME": "token-name",
-            "OPENWEATHERMAP_API_KEY_NAME": "key-name",
             "TABLE_NAME": "test-table",
         },
     )

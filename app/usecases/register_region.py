@@ -1,9 +1,9 @@
 from domain.entities.user import User
 from domain.repositories.user_repository import UserRepository
 from domain.value_objects.location import Location
-from infrastructure.exceptions import GeocodingNotFoundException
+from infrastructure.exceptions import GeocodingAmbiguousException, GeocodingNotFoundException
+from infrastructure.gsi.geocoding_client import GsiGeocodingClient
 from infrastructure.line.messaging_client import LineMessagingClient
-from infrastructure.openweathermap.client import GeocodingClient
 from utils.logger import get_logger, log_error, log_info
 
 logger = get_logger(__name__)
@@ -15,7 +15,7 @@ class RegisterRegionUseCase:
     def __init__(
         self,
         user_repository: UserRepository,
-        geocoding_client: GeocodingClient,
+        geocoding_client: GsiGeocodingClient,
         messaging_client: LineMessagingClient,
     ) -> None:
         self.user_repository = user_repository
@@ -54,6 +54,23 @@ class RegisterRegionUseCase:
 
             self.messaging_client.reply_message(
                 reply_token, f"{display_name}の天気をお届けします"
+            )
+
+        except GeocodingAmbiguousException as e:
+            log_info(
+                logger,
+                "複数の候補",
+                user_id=user_id,
+                city_name=city_name,
+                candidates=e.candidates,
+            )
+            candidate_list = "\n".join(
+                f"{i + 1}. {name}" for i, name in enumerate(e.candidates)
+            )
+            self.messaging_client.reply_message(
+                reply_token,
+                f"複数の候補があります:\n{candidate_list}\n\n"
+                "都道府県名を含めて再入力してください。",
             )
 
         except GeocodingNotFoundException:

@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 from domain.entities.user import User
 from domain.value_objects.location import Location
-from infrastructure.exceptions import GeocodingNotFoundException
+from infrastructure.exceptions import GeocodingAmbiguousException, GeocodingNotFoundException
 from usecases.register_region import RegisterRegionUseCase
 
 
@@ -57,6 +57,21 @@ class TestRegisterRegionUseCase:
         reply_text = self.mock_messaging.reply_message.call_args[0][1]
         assert "あああ" in reply_text
         assert "見つかりませんでした" in reply_text
+
+    def test_ambiguous_candidates(self):
+        self.mock_geocoding.get_coordinates.side_effect = GeocodingAmbiguousException(
+            "複数の候補があります",
+            candidates=["東京都府中市", "広島県府中市"],
+        )
+
+        self.usecase.execute("U1234", "府中市", "reply-token")
+
+        self.mock_user_repo.save.assert_not_called()
+        reply_text = self.mock_messaging.reply_message.call_args[0][1]
+        assert "複数の候補があります" in reply_text
+        assert "東京都府中市" in reply_text
+        assert "広島県府中市" in reply_text
+        assert "都道府県名を含めて再入力してください" in reply_text
 
     def test_unexpected_error(self):
         self.mock_geocoding.get_coordinates.side_effect = RuntimeError("unexpected")

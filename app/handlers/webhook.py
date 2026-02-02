@@ -8,7 +8,7 @@ import boto3
 
 from infrastructure.dynamodb.user_repository import DynamoDBUserRepository
 from infrastructure.line.messaging_client import LineMessagingClient
-from infrastructure.openweathermap.client import GeocodingClient
+from infrastructure.gsi.geocoding_client import GsiGeocodingClient
 from usecases.register_region import RegisterRegionUseCase
 from utils.logger import get_logger, log_error, log_info
 
@@ -66,7 +66,6 @@ def handler(event: dict, context: Any) -> dict:
 
         channel_secret_name = os.environ["LINE_CHANNEL_SECRET_NAME"]
         channel_access_token_name = os.environ["LINE_CHANNEL_ACCESS_TOKEN_NAME"]
-        api_key_name = os.environ["OPENWEATHERMAP_API_KEY_NAME"]
         table_name = os.environ["TABLE_NAME"]
 
         channel_secret = _get_secret(channel_secret_name)
@@ -76,10 +75,9 @@ def handler(event: dict, context: Any) -> dict:
             return {"statusCode": 401, "body": "Unauthorized"}
 
         channel_access_token = _get_secret(channel_access_token_name)
-        api_key = _get_secret(api_key_name)
 
         user_repository = DynamoDBUserRepository(table_name)
-        geocoding_client = GeocodingClient(api_key)
+        geocoding_client = GsiGeocodingClient()
         messaging_client = LineMessagingClient(channel_access_token)
         register_region_usecase = RegisterRegionUseCase(
             user_repository, geocoding_client, messaging_client
