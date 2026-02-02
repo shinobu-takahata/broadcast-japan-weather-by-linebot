@@ -20,3 +20,7 @@ class MessagingException(Exception):
 
 class RepositoryException(Exception):
     """データベース操作のエラー"""
+
+
+class WeatherAPIException(Exception):
+    """OpenWeatherMap APIのエラー"""

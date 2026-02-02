@@ -34,3 +34,26 @@ class LineMessagingClient:
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
             raise MessagingException(f"LINE Reply Message送信エラー: {e}") from e
+
+    @retry(max_attempts=3, backoff=[1, 2, 4])
+    def push_message(self, user_id: str, message: str) -> None:
+        """Push Messageを送信
+
+        Raises:
+            MessagingException: メッセージ送信エラー
+        """
+        url = f"{self.BASE_URL}/push"
+        headers = {
+            "Authorization": f"Bearer {self.channel_access_token}",
+            "Content-Type": "application/json",
+        }
+        data = {
+            "to": user_id,
+            "messages": [{"type": "text", "text": message}],
+        }
+
+        try:
+            response = requests.post(url, headers=headers, json=data, timeout=10)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            raise MessagingException(f"LINE Push Message送信エラー: {e}") from e

@@ -37,6 +37,19 @@ class DynamoDBUserRepository(UserRepository):
             return None
         return self._to_entity(response["Item"])
 
+    @retry(max_attempts=3, backoff=[1, 2, 4])
+    def get_all_users(self) -> list[User]:
+        """全ユーザーを取得（Scan操作）"""
+        items: list[dict] = []
+        response = self.table.scan()
+        items.extend(response.get("Items", []))
+
+        while "LastEvaluatedKey" in response:
+            response = self.table.scan(ExclusiveStartKey=response["LastEvaluatedKey"])
+            items.extend(response.get("Items", []))
+
+        return [self._to_entity(item) for item in items]
+
     @staticmethod
     def _to_entity(item: dict) -> User:
         """DynamoDB Item → Userエンティティ変換"""

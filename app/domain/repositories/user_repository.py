@@ -14,3 +14,7 @@ class UserRepository(ABC):
     @abstractmethod
     def find_by_id(self, user_id: str) -> Optional[User]:
         """ユーザーIDでユーザーを取得"""
+
+    @abstractmethod
+    def get_all_users(self) -> list[User]:
+        """全ユーザーを取得"""
