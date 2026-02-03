@@ -3,38 +3,55 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from infrastructure.exceptions import WeatherAPIException
-from infrastructure.openweathermap.client import OpenWeatherMapClient
+from infrastructure.weatherapi.client import WeatherApiClient
 
 
-class TestOpenWeatherMapClient:
+class TestWeatherApiClient:
     def setup_method(self):
-        self.client = OpenWeatherMapClient(api_key="test-api-key")
+        self.client = WeatherApiClient(api_key="test-api-key")
 
-    @patch("infrastructure.openweathermap.client.requests.get")
+    @patch("infrastructure.weatherapi.client.requests.get")
     def test_get_hourly_weather_success(self, mock_get):
         mock_response = MagicMock()
         mock_response.raise_for_status.return_value = None
         mock_response.json.return_value = {
-            "list": [
-                {"dt": 1706497200, "main": {"temp": 8.5}, "pop": 0.2},
-                {"dt": 1706500800, "main": {"temp": 9.0}, "pop": 0.3},
-            ]
+            "forecast": {
+                "forecastday": [
+                    {
+                        "hour": [
+                            {"time": "2026-02-03 09:00", "temp_c": 8.5},
+                            {"time": "2026-02-03 10:00", "temp_c": 9.0},
+                        ]
+                    }
+                ]
+            }
         }
         mock_get.return_value = mock_response
 
         result = self.client.get_hourly_weather(35.6619, 139.7041)
 
         assert len(result) == 2
+        assert result[0]["time"] == "2026-02-03 09:00"
         assert result[0]["temp"] == 8.5
-        assert "pop" not in result[0]
+        assert result[1]["temp"] == 9.0
         mock_get.assert_called_once()
         call_kwargs = mock_get.call_args
-        assert call_kwargs.kwargs["params"]["lat"] == 35.6619
-        assert call_kwargs.kwargs["params"]["lon"] == 139.7041
-        assert call_kwargs.kwargs["params"]["appid"] == "test-api-key"
+        assert call_kwargs.kwargs["params"]["q"] == "35.6619,139.7041"
+        assert call_kwargs.kwargs["params"]["key"] == "test-api-key"
+        assert call_kwargs.kwargs["params"]["days"] == 1
 
-    @patch("infrastructure.openweathermap.client.requests.get")
-    def test_get_hourly_weather_empty_hourly(self, mock_get):
+    @patch("infrastructure.weatherapi.client.requests.get")
+    def test_get_hourly_weather_empty_forecast(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {"forecast": {"forecastday": []}}
+        mock_get.return_value = mock_response
+
+        result = self.client.get_hourly_weather(35.6619, 139.7041)
+        assert result == []
+
+    @patch("infrastructure.weatherapi.client.requests.get")
+    def test_get_hourly_weather_no_forecast_key(self, mock_get):
         mock_response = MagicMock()
         mock_response.raise_for_status.return_value = None
         mock_response.json.return_value = {}
@@ -43,7 +60,7 @@ class TestOpenWeatherMapClient:
         result = self.client.get_hourly_weather(35.6619, 139.7041)
         assert result == []
 
-    @patch("infrastructure.openweathermap.client.requests.get")
+    @patch("infrastructure.weatherapi.client.requests.get")
     def test_get_hourly_weather_http_error(self, mock_get):
         import requests
 
@@ -54,7 +71,7 @@ class TestOpenWeatherMapClient:
         with pytest.raises(WeatherAPIException):
             self.client.get_hourly_weather(35.6619, 139.7041)
 
-    @patch("infrastructure.openweathermap.client.requests.get")
+    @patch("infrastructure.weatherapi.client.requests.get")
     def test_get_hourly_weather_timeout(self, mock_get):
         import requests
 

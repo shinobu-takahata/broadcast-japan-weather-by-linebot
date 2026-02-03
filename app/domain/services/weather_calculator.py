@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from domain.value_objects.weather import Weather
@@ -12,10 +12,10 @@ class WeatherCalculator:
     """実質天気（9:00〜23:00 JST）を算出するドメインサービス"""
 
     def calculate(self, hourly_data: list[dict], jma_pops: list[dict]) -> Weather:
-        """気温データ(OWM)と降水確率データ(JMA)から実質天気を算出する
+        """気温データ(WeatherAPI)と降水確率データ(JMA)から実質天気を算出する
 
         Args:
-            hourly_data: OpenWeatherMap APIのhourly配列。各要素は dt, temp を持つ。
+            hourly_data: WeatherAPI の hourly 配列。各要素は time(str), temp(float) を持つ。
             jma_pops: 気象庁APIの降水確率。各要素は time(datetime), pop(int) を持つ。
 
         Returns:
@@ -27,9 +27,8 @@ class WeatherCalculator:
         # 気温: 9:00〜23:00 JST のデータをフィルタ
         filtered_temps = []
         for entry in hourly_data:
-            dt_utc = datetime.fromtimestamp(entry["dt"], tz=timezone.utc)
-            dt_jst = dt_utc.astimezone(JST)
-            if HOUR_START <= dt_jst.hour < HOUR_END:
+            dt = datetime.strptime(entry["time"], "%Y-%m-%d %H:%M")
+            if HOUR_START <= dt.hour < HOUR_END:
                 filtered_temps.append(entry["temp"])
 
         if not filtered_temps:

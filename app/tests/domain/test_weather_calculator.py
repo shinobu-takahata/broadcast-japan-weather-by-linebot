@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -9,10 +9,8 @@ JST = ZoneInfo("Asia/Tokyo")
 
 
 def _make_hourly_entry(jst_hour: int, temp: float) -> dict:
-    """JST時刻を指定してhourlyエントリを作成（気温のみ）"""
-    dt_jst = datetime(2026, 2, 2, jst_hour, 0, 0, tzinfo=JST)
-    dt_utc = dt_jst.astimezone(timezone.utc)
-    return {"dt": int(dt_utc.timestamp()), "temp": temp}
+    """JST時刻を指定してhourlyエントリを作成（WeatherAPI形式）"""
+    return {"time": f"2026-02-02 {jst_hour:02d}:00", "temp": temp}
 
 
 def _make_jma_pop(hour: int, pop: int) -> dict:

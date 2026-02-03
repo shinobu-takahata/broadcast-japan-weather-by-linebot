@@ -48,12 +48,12 @@ export class WeatherBroadcastStack extends cdk.Stack {
 			},
 		);
 
-		const openWeatherMapApiKey = new secretsmanager.Secret(
+		const weatherApiKey = new secretsmanager.Secret(
 			this,
-			"OpenWeatherMapApiKey",
+			"WeatherApiKey",
 			{
-				secretName: "openweathermap-api-key",
-				description: "OpenWeatherMap API Key for weather data",
+				secretName: "weatherapi-api-key",
+				description: "WeatherAPI API Key for weather data",
 			},
 		);
 
@@ -102,7 +102,6 @@ export class WeatherBroadcastStack extends cdk.Stack {
 				TABLE_NAME: usersTable.tableName,
 				LINE_CHANNEL_SECRET_NAME: lineChannelSecret.secretName,
 				LINE_CHANNEL_ACCESS_TOKEN_NAME: lineChannelAccessToken.secretName,
-				OPENWEATHERMAP_API_KEY_NAME: openWeatherMapApiKey.secretName,
 			},
 			logGroup: webhookLogGroup,
 		});
@@ -111,8 +110,6 @@ export class WeatherBroadcastStack extends cdk.Stack {
 		usersTable.grantReadWriteData(webhookHandler);
 		lineChannelSecret.grantRead(webhookHandler);
 		lineChannelAccessToken.grantRead(webhookHandler);
-		openWeatherMapApiKey.grantRead(webhookHandler);
-
 		// =============================================
 		// Lambda - Broadcast Handler
 		// =============================================
@@ -140,7 +137,7 @@ export class WeatherBroadcastStack extends cdk.Stack {
 				environment: {
 					TABLE_NAME: usersTable.tableName,
 					LINE_CHANNEL_ACCESS_TOKEN_NAME: lineChannelAccessToken.secretName,
-					OPENWEATHERMAP_API_KEY_NAME: openWeatherMapApiKey.secretName,
+					WEATHERAPI_API_KEY_NAME: weatherApiKey.secretName,
 				},
 				logGroup: broadcastLogGroup,
 			},
@@ -149,7 +146,7 @@ export class WeatherBroadcastStack extends cdk.Stack {
 		// Broadcast Lambda permissions
 		usersTable.grantReadData(broadcastHandler);
 		lineChannelAccessToken.grantRead(broadcastHandler);
-		openWeatherMapApiKey.grantRead(broadcastHandler);
+		weatherApiKey.grantRead(broadcastHandler);
 
 		// =============================================
 		// API Gateway

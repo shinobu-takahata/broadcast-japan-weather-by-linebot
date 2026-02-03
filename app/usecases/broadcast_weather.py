@@ -6,7 +6,7 @@ from infrastructure.exceptions import JMAAPIException, MessagingException, Weath
 from infrastructure.jma.area_mapper import JmaAreaMapper
 from infrastructure.jma.client import JmaForecastClient
 from infrastructure.line.messaging_client import LineMessagingClient
-from infrastructure.openweathermap.client import OpenWeatherMapClient
+from infrastructure.weatherapi.client import WeatherApiClient
 from utils.logger import get_logger, log_error, log_info
 
 logger = get_logger(__name__)
@@ -25,7 +25,7 @@ class BroadcastWeatherUseCase:
     def __init__(
         self,
         user_repository: UserRepository,
-        weather_client: OpenWeatherMapClient,
+        weather_client: WeatherApiClient,
         messaging_client: LineMessagingClient,
         weather_calculator: WeatherCalculator,
         jma_client: JmaForecastClient,

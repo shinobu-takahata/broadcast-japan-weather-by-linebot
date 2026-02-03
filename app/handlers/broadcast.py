@@ -8,7 +8,7 @@ from infrastructure.dynamodb.user_repository import DynamoDBUserRepository
 from infrastructure.jma.area_mapper import JmaAreaMapper
 from infrastructure.jma.client import JmaForecastClient
 from infrastructure.line.messaging_client import LineMessagingClient
-from infrastructure.openweathermap.client import OpenWeatherMapClient
+from infrastructure.weatherapi.client import WeatherApiClient
 from usecases.broadcast_weather import BroadcastWeatherUseCase
 from utils.logger import get_logger, log_error, log_info
 
@@ -29,13 +29,13 @@ def handler(event: dict, context: Any) -> dict:
 
         table_name = os.environ["TABLE_NAME"]
         channel_access_token_name = os.environ["LINE_CHANNEL_ACCESS_TOKEN_NAME"]
-        openweathermap_api_key_name = os.environ["OPENWEATHERMAP_API_KEY_NAME"]
+        weatherapi_api_key_name = os.environ["WEATHERAPI_API_KEY_NAME"]
 
         channel_access_token = _get_secret(channel_access_token_name)
-        openweathermap_api_key = _get_secret(openweathermap_api_key_name)
+        weatherapi_api_key = _get_secret(weatherapi_api_key_name)
 
         user_repository = DynamoDBUserRepository(table_name)
-        weather_client = OpenWeatherMapClient(openweathermap_api_key)
+        weather_client = WeatherApiClient(weatherapi_api_key)
         messaging_client = LineMessagingClient(channel_access_token)
         weather_calculator = WeatherCalculator()
         jma_client = JmaForecastClient()

@@ -53,17 +53,17 @@
     "aws:cdk:path": "WeatherBroadcastStack/LineChannelAccessToken/Resource"
    }
   },
-  "OpenWeatherMapApiKey93E73062": {
+  "WeatherApiKey77215CE3": {
    "Type": "AWS::SecretsManager::Secret",
    "Properties": {
-    "Description": "OpenWeatherMap API Key for weather data",
+    "Description": "WeatherAPI API Key for weather data",
     "GenerateSecretString": {},
-    "Name": "openweathermap-api-key"
+    "Name": "weatherapi-api-key"
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
    "Metadata": {
-    "aws:cdk:path": "WeatherBroadcastStack/OpenWeatherMapApiKey/Resource"
+    "aws:cdk:path": "WeatherBroadcastStack/WeatherApiKey/Resource"
    }
   },
   "WebhookHandlerLogGroupBACEE951": {
@@ -170,16 +170,6 @@
        "Resource": {
         "Ref": "LineChannelAccessTokenDBEE86B2"
        }
-      },
-      {
-       "Action": [
-        "secretsmanager:GetSecretValue",
-        "secretsmanager:DescribeSecret"
-       ],
-       "Effect": "Allow",
-       "Resource": {
-        "Ref": "OpenWeatherMapApiKey93E73062"
-       }
       }
      ],
      "Version": "2012-10-17"
@@ -205,7 +195,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1"
      },
-     "S3Key": "2a002ec5bc1fc5e605454f5bbed879e9e754a851683c11722e31e6b7a2d6aef9.zip"
+     "S3Key": "458d708f5711e41167a6f7ec12a934843e031ba7bf79c26d38bce4f9fa072fcb.zip"
     },
     "Environment": {
      "Variables": {
@@ -386,82 +376,6 @@
          }
         ]
        ]
-      },
-      "OPENWEATHERMAP_API_KEY_NAME": {
-       "Fn::Join": [
-        "-",
-        [
-         {
-          "Fn::Select": [
-           0,
-           {
-            "Fn::Split": [
-             "-",
-             {
-              "Fn::Select": [
-               6,
-               {
-                "Fn::Split": [
-                 ":",
-                 {
-                  "Ref": "OpenWeatherMapApiKey93E73062"
-                 }
-                ]
-               }
-              ]
-             }
-            ]
-           }
-          ]
-         },
-         {
-          "Fn::Select": [
-           1,
-           {
-            "Fn::Split": [
-             "-",
-             {
-              "Fn::Select": [
-               6,
-               {
-                "Fn::Split": [
-                 ":",
-                 {
-                  "Ref": "OpenWeatherMapApiKey93E73062"
-                 }
-                ]
-               }
-              ]
-             }
-            ]
-           }
-          ]
-         },
-         {
-          "Fn::Select": [
-           2,
-           {
-            "Fn::Split": [
-             "-",
-             {
-              "Fn::Select": [
-               6,
-               {
-                "Fn::Split": [
-                 ":",
-                 {
-                  "Ref": "OpenWeatherMapApiKey93E73062"
-                 }
-                ]
-               }
-              ]
-             }
-            ]
-           }
-          ]
-         }
-        ]
-       ]
       }
      }
     },
@@ -488,7 +402,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "WeatherBroadcastStack/LineWebhookHandler/Resource",
-    "aws:asset:path": "asset.2a002ec5bc1fc5e605454f5bbed879e9e754a851683c11722e31e6b7a2d6aef9",
+    "aws:asset:path": "asset.458d708f5711e41167a6f7ec12a934843e031ba7bf79c26d38bce4f9fa072fcb",
     "aws:asset:is-bundled": true,
     "aws:asset:property": "Code"
    }
@@ -591,7 +505,7 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Ref": "OpenWeatherMapApiKey93E73062"
+        "Ref": "WeatherApiKey77215CE3"
        }
       }
      ],
@@ -618,7 +532,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1"
      },
-     "S3Key": "2a002ec5bc1fc5e605454f5bbed879e9e754a851683c11722e31e6b7a2d6aef9.zip"
+     "S3Key": "458d708f5711e41167a6f7ec12a934843e031ba7bf79c26d38bce4f9fa072fcb.zip"
     },
     "Environment": {
      "Variables": {
@@ -724,7 +638,7 @@
         ]
        ]
       },
-      "OPENWEATHERMAP_API_KEY_NAME": {
+      "WEATHERAPI_API_KEY_NAME": {
        "Fn::Join": [
         "-",
         [
@@ -741,7 +655,7 @@
                 "Fn::Split": [
                  ":",
                  {
-                  "Ref": "OpenWeatherMapApiKey93E73062"
+                  "Ref": "WeatherApiKey77215CE3"
                  }
                 ]
                }
@@ -764,7 +678,7 @@
                 "Fn::Split": [
                  ":",
                  {
-                  "Ref": "OpenWeatherMapApiKey93E73062"
+                  "Ref": "WeatherApiKey77215CE3"
                  }
                 ]
                }
@@ -787,7 +701,7 @@
                 "Fn::Split": [
                  ":",
                  {
-                  "Ref": "OpenWeatherMapApiKey93E73062"
+                  "Ref": "WeatherApiKey77215CE3"
                  }
                 ]
                }
@@ -825,7 +739,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "WeatherBroadcastStack/WeatherBroadcastHandler/Resource",
-    "aws:asset:path": "asset.2a002ec5bc1fc5e605454f5bbed879e9e754a851683c11722e31e6b7a2d6aef9",
+    "aws:asset:path": "asset.458d708f5711e41167a6f7ec12a934843e031ba7bf79c26d38bce4f9fa072fcb",
     "aws:asset:is-bundled": true,
     "aws:asset:property": "Code"
    }

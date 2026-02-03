@@ -86,3 +86,10 @@ aws secretsmanager put-secret-value \
 3. Messaging API設定タブを開く
 4. Webhook URLに `{デプロイ後に出力されるWebhookApiUrl}` を設定
 5. Webhookの利用を有効化
+
+
+## Lambdaの手動実行
+```
+aws lambda invoke --function-name weather-broadcast-weather-broadcast-handler --payload '{}' /tmp/lambda-output.json --region ap-northeast-1 2>&1 && cat            
+   /tmp/lambda-output.json 
+```
