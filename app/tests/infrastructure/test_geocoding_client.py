@@ -101,6 +101,27 @@ class TestGsiGeocodingClient:
         assert name == "神奈川県川崎市"
 
     @patch("infrastructure.gsi.geocoding_client.requests.get")
+    def test_get_coordinates_filters_non_city_suffix(self, mock_get):
+        """末尾が市区町村でない候補が除外され、1件に絞られるケース"""
+        mock_response = MagicMock()
+        mock_response.json.return_value = [
+            {
+                "geometry": {"coordinates": [139.7041, 35.6619]},
+                "properties": {"title": "神奈川県川崎市"},
+            },
+            {
+                "geometry": {"coordinates": [139.7050, 35.6630]},
+                "properties": {"title": "神奈川県川崎郡"},
+            },
+        ]
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
+
+        lat, lon, name = self.client.get_coordinates("川崎")
+
+        assert name == "神奈川県川崎市"
+
+    @patch("infrastructure.gsi.geocoding_client.requests.get")
     def test_get_coordinates_http_error(self, mock_get):
         import requests
 

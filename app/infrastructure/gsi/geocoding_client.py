@@ -54,7 +54,12 @@ class GsiGeocodingClient:
         if len(candidates) == 1:
             return candidates[0]
 
-        # 複数候補 - 重複タイトルを除去して再チェック
+        # 複数候補 - 末尾が市区町村で終わらないものを除外
+        filtered = [c for c in candidates if c[2].endswith(("市", "区", "町", "村"))]
+        if len(filtered) > 0:
+            candidates = filtered
+
+        # 重複タイトルを除去して再チェック
         seen = set()
         unique = []
         for c in candidates:

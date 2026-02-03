@@ -11,7 +11,9 @@ from utils.logger import get_logger, log_error, log_info
 
 logger = get_logger(__name__)
 
-MESSAGE_TEMPLATE = """【{city_name}の天気】
+MESSAGE_TEMPLATE = """おはよう U・x・U
+{city_name}のお出かけ時のお天気をお知らせするよ☀️☔️☁️⛄️
+
 最高気温: {max_temp}℃
 最低気温: {min_temp}℃
 降水確率: {pop}%"""

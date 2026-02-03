@@ -37,8 +37,8 @@ class TestWeatherCalculator:
             _make_jma_pop(18, 70),
         ]
         weather = self.calculator.calculate(hourly_data, jma_pops)
-        assert weather.max_temp == 25.5
-        assert weather.min_temp == 18.0
+        assert weather.max_temp == 26
+        assert weather.min_temp == 18
         assert weather.pop == 70
 
     def test_filters_out_before_9(self):
@@ -109,8 +109,8 @@ class TestWeatherCalculator:
         ]
         jma_pops = [_make_jma_pop(6, 10), _make_jma_pop(12, 20), _make_jma_pop(18, 5)]
         weather = self.calculator.calculate(hourly_data, jma_pops)
-        assert weather.max_temp == 25.4
-        assert weather.min_temp == 18.5
+        assert weather.max_temp == 25
+        assert weather.min_temp == 18
 
     def test_pop_is_max_of_relevant_blocks(self):
         hourly_data = [_make_hourly_entry(12, 20.0)]

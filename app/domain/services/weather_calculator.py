@@ -35,8 +35,8 @@ class WeatherCalculator:
         if not filtered_temps:
             raise ValueError("9:00〜23:00（JST）の気温データが存在しません")
 
-        max_temp = round(max(filtered_temps), 1)
-        min_temp = round(min(filtered_temps), 1)
+        max_temp = round(max(filtered_temps))
+        min_temp = round(min(filtered_temps))
 
         # 降水確率: JMA 6時間ブロックから9:00〜23:00に該当するものの最大値
         # 06:00→06-12時, 12:00→12-18時, 18:00→18-24時

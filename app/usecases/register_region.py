@@ -53,7 +53,7 @@ class RegisterRegionUseCase:
             )
 
             self.messaging_client.reply_message(
-                reply_token, f"{display_name}の天気をお届けします"
+                reply_token, f"毎朝09:00に{display_name}の天気をお届けするよ U・x・U"
             )
 
         except GeocodingAmbiguousException as e:
